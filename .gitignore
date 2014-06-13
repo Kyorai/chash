@@ -1,0 +1,8 @@
+*~
+.eunit
+ebin
+data
+deps
+.eqc-info
+*.beam
+*.eqc

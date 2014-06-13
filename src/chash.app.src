@@ -1,0 +1,12 @@
+{application, chash,
+ [
+  {description, "Riaks CHash implementation"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, {chash, []}},
+  {env, []}
+ ]}.

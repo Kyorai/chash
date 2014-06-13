@@ -1,0 +1,1 @@
+Riaks consistant hashing library.
