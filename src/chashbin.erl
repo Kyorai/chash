@@ -1,6 +1,6 @@
 %% -------------------------------------------------------------------
 %%
-%% taken from: https://github.com/basho/riak_core/blob/develop/src/chash.erl
+%% taken from: https://github.com/basho/riak_core/blob/develop/src/chashbin.erl
 %%
 %% riak_core: Core Riak Application
 %%
