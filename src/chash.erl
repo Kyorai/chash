@@ -195,10 +195,10 @@ successors(Index, CHash, N) ->
     Ordered = ordered_from(Index, CHash),
     {NumPartitions, _Nodes} = CHash,
     if Num =:= NumPartitions ->
-	    Ordered;
+           Ordered;
        true ->
-	    {Res, _} = lists:split(Num, Ordered),
-	    Res
+           {Res, _} = lists:split(Num, Ordered),
+           Res
     end.
 
 %% @doc Make the partition beginning at IndexAsInt owned by Name'd node.
