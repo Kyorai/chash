@@ -1,5 +1,7 @@
 %% -------------------------------------------------------------------
 %%
+%% taken from: https://github.com/basho/riak_core/blob/develop/src/chash.erl
+%%
 %% riak_core: Core Riak Application
 %%
 %% Copyright (c) 2013 Basho Technologies, Inc.  All Rights Reserved.
