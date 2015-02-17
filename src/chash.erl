@@ -87,11 +87,10 @@ contains_name(Name, CHash) ->
 %%      is not much larger than the intended eventual number of
 %%       participating nodes, then performance will suffer.
 -spec fresh(NumPartitions :: num_partitions(), SeedNode :: chash_node()) -> chash().
-fresh(NumPartitions, SeedNode) when NumPartitions > 1,
-                                    (NumPartitions band (NumPartitions - 1) =:= 0) ->
+fresh(NumPartitions, SeedNode) ->
     Inc = ring_increment(NumPartitions),
     {NumPartitions, [{IndexAsInt, SeedNode} ||
-                        IndexAsInt <- lists:seq(0,(?RINGTOP-1),Inc)]}.
+           IndexAsInt <- lists:seq(0,(?RINGTOP-1),Inc)]}.
 
 %% @doc Find the Node that owns the partition identified by IndexAsInt.
 -spec lookup(IndexAsInt :: index_as_int(), CHash :: chash()) -> chash_node().
@@ -129,14 +128,14 @@ merge_rings(CHashA,CHashB) ->
     {NumPartitions, NodesA} = CHashA,
     {NumPartitions, NodesB} = CHashB,
     {NumPartitions, [{I,random_node(A,B)} ||
-                        {{I,A},{I,B}} <- lists:zip(NodesA,NodesB)]}.
+           {{I,A},{I,B}} <- lists:zip(NodesA,NodesB)]}.
 
 %% @doc Given the integer representation of a chash key,
 %%      return the next ring index integer value.
 -spec next_index(IntegerKey :: integer(), CHash :: chash()) -> index_as_int().
-next_index(IntegerKey, {NumPartitions, _Nodes}) ->
-    Inc = ring_increment(NumPartitions),
-    (((IntegerKey div Inc) + 1) rem NumPartitions) * Inc.
+next_index(IntegerKey, {NumPartitions, _}) ->
+        Inc = ring_increment(NumPartitions),
+        (((IntegerKey div Inc) + 1) rem NumPartitions) * Inc.
 
 %% @doc Return the entire set of NodeEntries in the ring.
 -spec nodes(CHash :: chash()) -> [node_entry()].
@@ -196,10 +195,10 @@ successors(Index, CHash, N) ->
     Ordered = ordered_from(Index, CHash),
     {NumPartitions, _Nodes} = CHash,
     if Num =:= NumPartitions ->
-            Ordered;
+           Ordered;
        true ->
-            {Res, _} = lists:split(Num, Ordered),
-            Res
+           {Res, _} = lists:split(Num, Ordered),
+           Res
     end.
 
 %% @doc Make the partition beginning at IndexAsInt owned by Name'd node.
@@ -234,15 +233,15 @@ random_node(NodeA,NodeB) -> lists:nth(random:uniform(2),[NodeA,NodeB]).
 update_test() ->
     Node = 'old@host', NewNode = 'new@host',
 
-    %% Create a fresh ring...
-    CHash = chash:fresh(4, Node),
+    % Create a fresh ring...
+    CHash = chash:fresh(5, Node),
     GetNthIndex = fun(N, {_, Nodes}) -> {Index, _} = lists:nth(N, Nodes), Index end,
 
-    %% Test update...
+    % Test update...
     FirstIndex = GetNthIndex(1, CHash),
     ThirdIndex = GetNthIndex(3, CHash),
-    {4, [{_, NewNode}, {_, Node}, {_, Node}, {_, Node}]} = update(FirstIndex, NewNode, CHash),
-    {4, [{_, Node}, {_, Node}, {_, NewNode}, {_, Node}]} = update(ThirdIndex, NewNode, CHash).
+    {5, [{_, NewNode}, {_, Node}, {_, Node}, {_, Node}, {_, Node}, {_, Node}]} = update(FirstIndex, NewNode, CHash),
+    {5, [{_, Node}, {_, Node}, {_, NewNode}, {_, Node}, {_, Node}, {_, Node}]} = update(ThirdIndex, NewNode, CHash).
 
 contains_test() ->
     CHash = chash:fresh(8, the_node),

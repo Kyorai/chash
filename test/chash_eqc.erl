@@ -24,16 +24,61 @@
 
 -module(chash_eqc).
 
--ifdef(TEST).
 -ifdef(EQC).
 -include_lib("eqc/include/eqc.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
--define(RINGTOP, trunc(math:pow(2,160)-1)).  % SHA-1 space
+-define(NOTEST, true).
+-define(NOASSERT, true).
+
 -define(TEST_ITERATIONS, 50).
 -define(QC_OUT(P),
         eqc:on_output(fun(Str, Args) -> io:format(user, Str, Args) end, P)).
--compile(export_all).
+-define(RINGTOP, trunc(math:pow(2,160)-1)).  % SHA-1 space
+
+-export([check/0,
+         test/0,
+         test/1]).
+
+%%====================================================================
+%% eunit test
+%%====================================================================
+
+eqc_test_() ->
+    {inparallel,
+     [{spawn,
+       [{setup,
+         fun setup/0,
+         fun cleanup/1,
+         [
+          %% Run the quickcheck tests
+          {timeout, 60000, % timeout is in msec
+           %% Indicate the number of test iterations for each property here
+           ?_assertEqual(true,
+                         quickcheck(numtests(?TEST_ITERATIONS,
+                                             ?QC_OUT(prop_chash_next_index()))))
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }.
+
+setup() ->
+    %% Remove the logger noise.
+    application:load(sasl),
+    error_logger:tty(false),
+    %% Uncomment the following lines to send log output to files.
+    %% application:set_env(sasl, sasl_error_logger, {file, "chash_eqc_sasl.log"}),
+    %% error_logger:logfile({open, "chash_eqc.log"}),
+
+    %% TODO: Perform any required setup
+    ok.
+
+cleanup(_) ->
+    %% TODO: Perform any required cleanup
+    ok.
 
 %% ====================================================================
 %% eqc property
@@ -81,74 +126,12 @@ prop_chash_next_index() ->
           end
          )).
 
-prop_size() ->
-    ?FORALL(N, non_neg_int(),
-            try
-                chash:size(chash:fresh(N, the_node)) == N
-            catch
-                _:_ ->
-                    not (N > 1 andalso (N band (N - 1) =:= 0))
-            end).
-
-prop_update() ->
-    ?FORALL({N, CHash}, chash(),
-            ?FORALL(Pos, choose(1, N),
-                    begin
-                        {Index, _} = lists:nth(Pos, chash:nodes(CHash)),
-                        CHash1 = chash:update(Index, new, CHash),
-                        lists:keyfind(Index, 1, chash:nodes(CHash1)) == {Index, new} andalso
-                            length([new || new <- chash:members(CHash1)]) == 1 andalso
-                            chash:contains_name(new, CHash1) andalso
-                            chash:contains_name(first, CHash1) andalso
-                            not chash:contains_name(new, CHash)
-                    end)).
-
-prop_successors_length() ->
-    ?FORALL({Rand, {N, CHash}}, {int(), chash()},
-            ?FORALL(Picks, choose(1, N),
-                    length(chash:successors(chash:key_of(Rand), CHash, Picks)) == Picks)).
-
-prop_inverse_pred() ->
-    ?FORALL({Rand, {_, CHash}}, {int(), chash()},
-            begin
-                Key = chash:key_of(Rand),
-                S = [I || {I,_} <- chash:successors(Key, CHash)],
-                P = [I || {I,_} <- chash:predecessors(Key,CHash)],
-                S == lists:reverse(P)
-            end).
-
-prop_next_index() ->
-    ?FORALL({Rand, {_, CHash}}, {int(), chash()},
-            begin
-                <<I:160/integer>> = chash:key_of(Rand),
-                I1 = chash:next_index(I, CHash),
-                I =< I1 orelse I1 == 0
-            end).
-
-prop_predecessors_int() ->
-    ?FORALL({Rand, {_, CHash}}, {int(), chash()},
-            begin
-                B = <<I:160/integer>> = chash:key_of(Rand),
-                chash:predecessors(B, CHash) == chash:predecessors(I, CHash)
-            end).
-
 %%====================================================================
 %% Generators
 %%====================================================================
 
 g_partition_exponent() ->
     choose(1, 12).
-
-non_neg_int() ->
-    ?LET(I, int(), abs(I)+1).
-
-size() ->
-    ?LET(N, choose(1, 5), trunc(math:pow(2, N))).
-
-chash() ->
-    ?LET(N, size(),
-         {N, chash:fresh(N, first)}).
-
 
 %%====================================================================
 %% Helpers
@@ -163,6 +146,4 @@ test(N) ->
 check() ->
     check(prop_chash_next_index(), current_counterexample()).
 
--include("eqc_helper.hrl").
--endif.
--endif.
+-endif. % EQC

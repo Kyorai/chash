@@ -11,7 +11,7 @@ deps:
 	$(REBAR) get-deps
 
 clean:
-	-rm -r .eunit
+	-rm -rf .eunit
 	$(REBAR) clean
 
 distclean: clean
@@ -24,11 +24,11 @@ eqc-ci: clean all
 	$(REBAR) -D EQC_CI -C rebar_eqc_ci.config compile eunit skip_deps=true --verbose
 
 test: all
-	-rm -r .eunit
+	-rm -rf .eunit
 	$(REBAR) skip_deps=true eunit
 
 bench: all
-	-rm -r .eunit
+	-rm -rf .eunit
 	$(REBAR) -D BENCH skip_deps=true eunit
 
 ###
