@@ -37,9 +37,16 @@
 -type pred_fun()   :: fun(({index(), node()}) -> boolean()).
 -type chash_key()  :: index() | chash:index().
 
+-ifndef(namespaced_types).
 -record(chashbin, {size   :: pos_integer(),
                    owners :: owners_bin(),
                    nodes  :: tuple(node())}).
+-else.
+-record(chashbin, {size   :: pos_integer(),
+                   owners :: owners_bin(),
+                   nodes  :: erlang:tuple(node())}).
+-endif.
+
 
 -type chashbin() :: #chashbin{}.
 
