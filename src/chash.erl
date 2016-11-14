@@ -222,8 +222,13 @@ max_n(N, {NumPartitions, _Nodes}) ->
 
 %% @private
 -spec random_node(NodeA :: chash_node(), NodeB :: chash_node()) -> chash_node().
+-ifndef(rand_module).
 random_node(NodeA,NodeA) -> NodeA;
 random_node(NodeA,NodeB) -> lists:nth(random:uniform(2),[NodeA,NodeB]).
+-else.
+random_node(NodeA,NodeA) -> NodeA;
+random_node(NodeA,NodeB) -> lists:nth(rand:uniform(2),[NodeA,NodeB]).
+-endif.
 
 %% ===================================================================
 %% EUnit tests
