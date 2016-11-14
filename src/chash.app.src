@@ -1,14 +1,9 @@
-{application, chash,
- [
-  {description, "Riaks CHash implementation"},
-  {vsn, "0.1.1"},
-  {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib
-                 ]},
-  {env, []},
-  {maintainers,["basho", "Heinz N. Gies"]},
-  {licenses,["Apache"]},
-  {links,[{"Github","https://github.com/project-fifo/chash"}]}
- ]}.
+{application,chash,
+             [{description,"Riaks CHash implementation"},
+              {vsn,"0.1.2"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {maintainers,["basho","Heinz N. Gies"]},
+              {licenses,["Apache"]},
+              {links,[{"Github","https://github.com/project-fifo/chash"}]}]}.
