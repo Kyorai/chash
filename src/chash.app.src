@@ -7,6 +7,8 @@
                   kernel,
                   stdlib
                  ]},
-  {mod, {chash, []}},
-  {env, []}
+  {env, []},
+  {maintainers,["basho", "Heinz N. Gies"]},
+  {licenses,["Apache"]},
+  {links,[{"Github","https://github.com/project-fifo/chash"}]}
  ]}.
